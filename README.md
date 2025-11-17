@@ -1,2 +1,2 @@
 # CRM_PROYECTO
-##Instrucciones del proyecto
+Instrucciones del proyecto
