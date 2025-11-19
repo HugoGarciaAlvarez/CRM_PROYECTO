@@ -1,0 +1,65 @@
+<div class="p-6 bg-gray-100 min-h-screen flex flex-col gap-6">
+
+  <!-- Bienvenida -->
+  <h1 class="text-3xl font-bold mb-4" *ngIf="!cargando()">
+    Bienvenido {{ nombre() }}
+  </h1>
+
+  <!-- Resumen en tarjetas -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6" *ngIf="!cargando()">
+    <div class="bg-blue-100 text-blue-700 p-6 rounded-xl shadow text-center">
+      <h2 class="font-semibold mb-2">Tareas Faltantes</h2>
+      <p class="text-3xl font-bold">{{ tareasFaltantes() }}</p>
+    </div>
+    <div class="bg-orange-100 text-orange-700 p-6 rounded-xl shadow text-center">
+      <h2 class="font-semibold mb-2">Incidencias en Trámite</h2>
+      <p class="text-3xl font-bold">{{ incidenciasTramite() }}</p>
+    </div>
+    <div class="bg-red-100 text-red-700 p-6 rounded-xl shadow text-center">
+      <h2 class="font-semibold mb-2">Incidencias Activas</h2>
+      <p class="text-3xl font-bold">{{ incidenciasActivas() }}</p>
+    </div>
+  </div>
+
+  <!-- Gráficas alineadas -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6" *ngIf="!cargando()">
+
+  <!-- Ventas Mensuales -->
+  <div class="bg-white p-6 rounded-xl shadow flex flex-col items-center">
+    <h2 class="font-semibold mb-2">Ventas Mensuales</h2>
+    <canvas #ventasCanvas style="width: 500px; height: 300px;"></canvas>
+  </div>
+
+  <!-- Leads por Estado -->
+  <div class="bg-white p-6 rounded-xl shadow flex flex-col items-center">
+    <h2 class="font-semibold mb-2">Leads por Estado</h2>
+    <canvas #leadsCanvas style="width: 500px; height: 300px;"></canvas>
+  </div>
+
+</div>
+
+  <!-- Tabla de clientes recientes -->
+  <div class="bg-white p-6 rounded-xl shadow mt-6" *ngIf="!cargando()">
+    <h2 class="font-semibold mb-4">Clientes Recientes</h2>
+    <table class="min-w-full text-left border-collapse">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="px-4 py-2">Nombre</th>
+          <th class="px-4 py-2">Estado</th>
+          <th class="px-4 py-2">Último contacto</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cliente of clientesRecientes()">
+          <td class="border-t px-4 py-2">{{ cliente.nombre }}</td>
+          <td class="border-t px-4 py-2">{{ cliente.estado }}</td>
+          <td class="border-t px-4 py-2">{{ cliente.ultimoContacto }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Loading -->
+  <p class="text-gray-500 text-xl" *ngIf="cargando()">Cargando dashboard...</p>
+
+</div>
