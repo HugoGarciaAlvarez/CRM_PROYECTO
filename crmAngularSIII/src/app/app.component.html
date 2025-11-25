@@ -1,0 +1,71 @@
+<div class="flex flex-col min-h-screen">
+
+  <!-- HEADER -->
+  <header class="flex items-center justify-between bg-gray-800 px-6 py-3 shadow-lg">
+
+    <!-- Logo / Nombre CRM -->
+    <div class="text-white font-bold text-xl">
+      CRM
+    </div>
+
+    <!-- Acciones de usuario -->
+    <div class="flex items-center">
+      <!-- Buscador -->
+      <input type="text" placeholder="Buscar clientes..." class="px-3 py-1 rounded-l bg-gray-700 text-white focus:outline-none">
+      <button class="px-3 py-1 bg-gray-600 rounded-r hover:bg-gray-500 transition">Buscar</button>
+
+      <!-- Notificaciones -->
+      <button class="mx-2 p-2 rounded-full hover:bg-gray-700 transition">
+        <img src="campana.svg" alt="Notificaciones" class="w-6 h-6">
+      </button>
+
+      <!-- Usuario -->
+      <button class="mx-2 p-2 rounded-full hover:bg-gray-700 transition">
+        <img src="usuario.svg" alt="Usuario" class="w-6 h-6">
+      </button>
+    </div>
+
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="flex flex-1">
+
+    <!-- SIDEBAR -->
+    <aside class="flex flex-col w-64 bg-gray-900 text-white p-4 gap-3 shadow-lg">
+
+      <!-- Links principales de CRM -->
+      <div class="flex flex-col gap-3">
+        <a routerLink="/inicio" routerLinkActive="bg-gray-700" class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Dashboard
+        </a>
+        <a routerLink="/clientes" routerLinkActive="bg-gray-700" class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Clientes
+        </a>
+        <a routerLink="/contactos" routerLinkActive="bg-gray-700" class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Contactos
+        </a>
+        <a routerLink="/oportunidades" routerLinkActive="bg-gray-700" class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Oportunidades
+        </a>
+        <a routerLink="/tareas" routerLinkActive="bg-gray-700" class="px-3 py-2 rounded hover:bg-gray-700 transition">
+         Tareas
+        </a>
+       
+
+        <!-- Botón Cerrar sesión -->
+        <div class="border-t border-gray-600 my-2"></div>
+        <button class="px-3 py-2 bg-red-600 rounded hover:bg-red-700 transition">
+          Cerrar sesión
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 p-6 bg-gray-100">
+      <!-- Dashboard o contenido del módulo seleccionado -->
+      <router-outlet></router-outlet>
+    </main>
+
+  </div>
+</div>
