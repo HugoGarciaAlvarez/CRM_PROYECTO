@@ -87,4 +87,5 @@ INSERT INTO roles (name) VALUES ('ADMIN');
 
 
 INSERT INTO usuarios (username, email, password, role_id)
+--contraseña: 1234
 VALUES ('hugo', 'hugo@gmail.com', '$2a$10$TT0MXs6nA0gWpt2bsg0eBewA4hbDqpO99c/rg99wRm2j5UqiQoW92', 1);
