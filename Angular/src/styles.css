@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prevent horizontal scrolling on mobile */
+body { @apply overflow-x-hidden; }
+
+/* Stronger global guard against horizontal pan on small devices */
+html, body, app-root {
+	overflow-x: hidden;
+}
+
+/* Make tables more forgiving on small screens */
+table {
+	width: 100%;
+	table-layout: fixed; /* avoid growing beyond container */
+}
+
+td, th {
+	word-break: break-word; /* wrap long content */
+}
+
+/* Ensure main page container never becomes wider than viewport */
+.page-content-container {
+	max-width: 100%;
+	overflow-x: hidden;
+}
+
+

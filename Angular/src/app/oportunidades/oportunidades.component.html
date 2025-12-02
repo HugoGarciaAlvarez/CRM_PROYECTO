@@ -1,0 +1,257 @@
+<!-- Estructura principal de la pantalla de Oportunidades -->
+    <div class="p-4 md:p-8 bg-gray-50 min-h-screen font-inter">
+
+      <!-- Encabezado y Botón de Acción -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800">Gestión de Oportunidades</h1>
+          <p class="text-gray-500 mt-1 text-sm md:text-base">Vista general de todas las oportunidades activas y cerradas.</p>
+        </div>
+
+        <!-- Botón para Añadir Oportunidad (Abre el modal de Creación) -->
+        <button
+          (click)="openCreateForm()"
+          class="flex items-center space-x-2 bg-indigo-600 text-white font-semibold py-2 px-3 rounded-xl shadow-md hover:bg-indigo-700 transition duration-300 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 mt-4 sm:mt-0 text-sm"
+          aria-label="Añadir nueva oportunidad"
+        >
+          <!-- Icono de Plus (usando inline SVG) -->
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <span>Nueva Oportunidad</span>
+        </button>
+      </div>
+
+      <!-- Panel de Estadísticas (usando computed signals del servicio) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        @for (stat of oportunidadesService.stats(); track stat.title) {
+          <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-100 transition duration-200 hover:shadow-md">
+            <p class="text-xs font-medium text-gray-500">{{ stat.title }}</p>
+            <p class="text-xl font-bold text-gray-900 mt-1">{{ stat.value }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Indicador de Carga y Contenido Principal -->
+      @if (oportunidadesService.isLoading()) {
+        <div class="flex flex-col justify-center items-center h-64 bg-white rounded-xl shadow-lg">
+          <div class="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-indigo-500"></div>
+          <p class="mt-4 text-indigo-600 font-semibold">Cargando oportunidades...</p>
+        </div>
+      } @else if (oportunidadesService.opportunities().length === 0) {
+        <!-- Mensaje si no hay datos -->
+        <div class="text-center p-12 bg-white rounded-xl shadow-lg">
+          <p class="text-xl font-semibold text-gray-600">¡No se encontraron oportunidades!</p>
+          <p class="text-gray-400 mt-2">Parece que aún no tienes datos de CRM.</p>
+        </div>
+      } @else {
+        <!-- Tabla de Oportunidades -->
+        <div class="bg-white rounded-lg shadow-lg overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 table-fixed">
+            <thead class="bg-gray-50 hidden sm:table-header-group">
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oportunidad</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Cliente</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etapa</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Inicio</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Cierre Est.</th>
+                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              @for (opp of oportunidadesService.opportunities(); track opp.id) {
+                <tr class="block sm:table-row hover:bg-indigo-50/50 transition duration-150">
+                  <td class="block sm:table-cell px-4 py-3 whitespace-normal sm:whitespace-nowrap text-sm font-medium text-gray-900">
+                      <div class="sm:hidden text-xs text-gray-500 flex items-center justify-between">
+                        <span>Oportunidad</span>
+                        <!-- Mobile action button (left-aligned visually because it appears near the top of the cell) -->
+                        <button (click)="openEditForm(opp.id)" class="sm:hidden text-indigo-600 hover:text-indigo-900 text-sm font-medium px-2 py-1">
+                          Ver Detalle
+                        </button>
+                      </div>
+                      <div class="mt-1">{{ opp.name }}</div>
+                    </td>
+                  <td class="block sm:table-cell px-4 py-3 whitespace-normal sm:whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                    <div class="sm:hidden text-xs text-gray-500">Cliente</div>
+                    {{ opp.client }}
+                  </td>
+                  <td class="block sm:table-cell px-4 py-3 whitespace-normal sm:whitespace-nowrap">
+                    <div class="sm:hidden text-xs text-gray-500">Etapa</div>
+                    <span [class]="getStageBadgeClass(opp.stage)">{{ opp.stage }}</span>
+                  </td>
+                  <td class="block sm:table-cell px-4 py-3 whitespace-normal sm:whitespace-nowrap text-sm text-gray-900 font-semibold">
+                    <div class="sm:hidden text-xs text-gray-500">Monto</div>
+                    {{ formatCurrency(opp.amount) }}
+                  </td>
+                  <td class="block sm:table-cell px-4 py-3 whitespace-normal sm:whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
+                    <div class="sm:hidden text-xs text-gray-500">Inicio</div>
+                    {{ formatDate(opp.startDate) }}
+                  </td>
+                  <td class="block sm:table-cell px-4 py-3 whitespace-normal sm:whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
+                    <div class="sm:hidden text-xs text-gray-500">Cierre Est.</div>
+                    {{ formatDate(opp.closeDate) }}
+                  </td>
+                  <td class="hidden sm:table-cell px-4 py-3 whitespace-normal sm:whitespace-nowrap text-right text-sm font-medium">
+                    <button (click)="openEditForm(opp.id)" class="text-indigo-600 hover:text-indigo-900 focus:outline-none font-semibold">
+                      Ver Detalle
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <p class="mt-4 text-sm text-gray-500">
+          Total de oportunidades mostradas: {{ oportunidadesService.opportunities().length }}
+        </p>
+      }
+    </div>
+
+    <!-- MODAL DE CREACIÓN/EDICIÓN DE OPORTUNIDAD -->
+    @if (isFormOpen()) {
+      <div class="fixed inset-0 bg-gray-900 bg-opacity-75 z-50 flex justify-center items-center p-4">
+        <div class="bg-white w-full max-w-lg p-6 rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
+
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">
+              <!-- Título dinámico para Creación o Edición -->
+              @if (isEditing()) {
+                Editar Oportunidad ({{ selectedOpportunityId() }})
+              } @else {
+                Crear Nueva Oportunidad
+              }
+            </h2>
+            <button (click)="closeForm()" class="text-gray-400 hover:text-gray-600 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form [formGroup]="opportunityForm" (ngSubmit)="saveOpportunity()" class="space-y-4">
+
+            <!-- Nombre de la Oportunidad -->
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+              <input
+                id="name"
+                type="text"
+                formControlName="name"
+                class="w-full border-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                placeholder="Ej: Software ERP para..."
+              />
+              @if (opportunityForm.get('name')?.invalid && opportunityForm.get('name')?.touched) {
+                <p class="mt-1 text-xs text-red-600">El nombre es obligatorio.</p>
+              }
+            </div>
+
+            <!-- Cliente -->
+            <div>
+              <label for="client" class="block text-sm font-medium text-gray-700 mb-1">Cliente</label>
+              <input
+                id="client"
+                type="text"
+                formControlName="client"
+                class="w-full border-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                placeholder="Ej: Tech Innovators"
+              />
+              @if (opportunityForm.get('client')?.invalid && opportunityForm.get('client')?.touched) {
+                <p class="mt-1 text-xs text-red-600">El cliente es obligatorio.</p>
+              }
+            </div>
+
+            <!-- Monto y Etapa (en línea) -->
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Monto -->
+              <div>
+                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Monto (USD)</label>
+                <input
+                  id="amount"
+                  type="number"
+                  formControlName="amount"
+                  class="w-full border-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                  placeholder="120000"
+                />
+                @if (opportunityForm.get('amount')?.invalid && opportunityForm.get('amount')?.touched) {
+                  <p class="mt-1 text-xs text-red-600">Monto obligatorio y debe ser positivo.</p>
+                }
+              </div>
+
+              <!-- Etapa -->
+              <div>
+                <label for="stage" class="block text-sm font-medium text-gray-700 mb-1">Etapa</label>
+                <select
+                  id="stage"
+                  formControlName="stage"
+                  class="w-full border-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                >
+                  @for (s of stages; track s) {
+                    <option [value]="s">{{ s }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <!-- NUEVO: Fecha de Inicio -->
+            <div>
+              <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inicio</label>
+              <input
+                id="startDate"
+                type="date"
+                formControlName="startDate"
+                class="w-full border-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+              />
+              @if (opportunityForm.get('startDate')?.invalid && opportunityForm.get('startDate')?.touched) {
+                <p class="mt-1 text-xs text-red-600">Fecha de inicio es obligatoria.</p>
+              }
+            </div>
+
+            <!-- Fecha de Cierre Estimada -->
+            <div>
+              <label for="closeDate" class="block text-sm font-medium text-gray-700 mb-1">Cierre Estimado</label>
+              <input
+                id="closeDate"
+                type="date"
+                formControlName="closeDate"
+                class="w-full border-2 border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+              />
+              @if (opportunityForm.get('closeDate')?.invalid && opportunityForm.get('closeDate')?.touched) {
+                <p class="mt-1 text-xs text-red-600">Fecha de cierre es obligatoria.</p>
+              }
+            </div>
+
+            <!-- Botones de Acción del Formulario -->
+            <div class="flex justify-end space-x-3 pt-4">
+              <button
+                type="button"
+                (click)="closeForm()"
+                class="px-4 py-2 text-gray-700 bg-gray-200 rounded-xl hover:bg-gray-300 transition"
+                [disabled]="oportunidadesService.isSaving()"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                [disabled]="opportunityForm.invalid || oportunidadesService.isSaving()"
+                class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-xl transition duration-300"
+                [ngClass]="{'opacity-50 cursor-not-allowed': opportunityForm.invalid || oportunidadesService.isSaving(), 'hover:bg-indigo-700': !opportunityForm.invalid && !oportunidadesService.isSaving()}"
+              >
+                @if (oportunidadesService.isSaving()) {
+                  <span class="flex items-center">
+                    <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-white mr-2"></div>
+                    Guardando...
+                  </span>
+                } @else if (isEditing()) {
+                  <span>Actualizar Oportunidad</span>
+                } @else {
+                  <span>Guardar Oportunidad</span>
+                }
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    }
