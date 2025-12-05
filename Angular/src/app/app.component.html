@@ -1,0 +1,96 @@
+<ng-container *ngIf="isLoggedIn; else loginTpl">
+
+  <div class="flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="flex items-center justify-between bg-gray-800 px-4 py-3 shadow-lg">
+
+      <!-- Botón hamburguesa (solo en móviles) -->
+      <button 
+        class="text-white md:hidden"
+        (click)="isSidebarOpen = !isSidebarOpen">
+        ☰
+      </button>
+
+      <div class="text-white font-bold text-xl">CRM</div>
+
+      <div class="hidden sm:flex items-center">
+        <input 
+          type="text" 
+          placeholder="Buscar clientes..." 
+          class="px-3 py-1 rounded-l bg-gray-700 text-white focus:outline-none">
+        <button class="px-3 py-1 bg-gray-600 rounded-r hover:bg-gray-500 transition">
+          Buscar
+        </button>
+      </div>
+    </header>
+
+    <div class="flex flex-1 relative">
+
+      <!-- SIDEBAR -->
+      <aside
+        class="flex flex-col w-64 bg-gray-900 text-white p-4 gap-3 shadow-lg
+               transform md:transform-none transition-transform duration-300
+               fixed md:static inset-y-0 left-0 z-40
+               md:translate-x-0"
+        [class.-translate-x-full]="!isSidebarOpen">
+
+        <a routerLink="/inicio"
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Dashboard
+        </a>
+
+        <a routerLink="/clientes"
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Clientes
+        </a>
+
+        <a routerLink="/contactos"
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Contactos
+        </a>
+
+        <a routerLink="/oportunidades"
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Oportunidades
+        </a>
+
+        <a routerLink="/tareas"
+           routerLinkActive="bg-gray-700"
+           class="px-3 py-2 rounded hover:bg-gray-700 transition">
+          Tareas
+        </a>
+
+        <div class="border-t border-gray-600 my-2"></div>
+
+        <button 
+          class="px-3 py-2 bg-red-600 rounded hover:bg-red-700 transition mt-auto"
+          (click)="logout()">
+          Cerrar sesión
+        </button>
+      </aside>
+
+      <!-- Overlay oscuro cuando el sidebar está abierto en móvil -->
+      <div 
+        class="fixed inset-0 bg-black bg-opacity-50 md:hidden"
+        *ngIf="isSidebarOpen"
+        (click)="isSidebarOpen = false">
+      </div>
+
+      <!-- MAIN -->
+      <main class="flex-1 p-6 bg-gray-100 mt-12 md:mt-0">
+        <router-outlet></router-outlet>
+      </main>
+
+    </div>
+  </div>
+
+</ng-container>
+
+<ng-template #loginTpl>
+  <app-login (loginSuccess)="handleLogin()"></app-login>
+</ng-template>
