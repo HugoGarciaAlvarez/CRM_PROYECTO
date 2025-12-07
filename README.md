@@ -22,8 +22,11 @@ Para levantar la base de datos, pegue el codigo adjunto del archivo base-de-dato
 El usuario y contraseña para poder inciar sesion
 
 Recuerda que Angular escucha por el puerto http://localhost:4200/
+
 spring por el puerto http://localhost:8080/
+
 y MySQL por el puerto jdbc:mysql://localhost:3306/CRM
+
 Ademas no te olvides de mirar el documento Aplication Propperties para asi poder cuadrar tu base de datos con el proyecto
 
 
