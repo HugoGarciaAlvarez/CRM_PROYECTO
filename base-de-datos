@@ -1,62 +1,69 @@
+-- ------------------------------
 -- 1. Crear la base de datos
+-- ------------------------------
 CREATE DATABASE IF NOT EXISTS crm;
 USE crm;
 
--- 2. Crear tabla roles
+-- ------------------------------
+-- 2. Roles
+-- ------------------------------
 CREATE TABLE roles (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- 3. Crear tabla usuarios
+-- ------------------------------
+-- 3. Usuarios
+-- ------------------------------
 CREATE TABLE usuarios (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role_id BIGINT NOT NULL,
-    CONSTRAINT fk_role
-        FOREIGN KEY (role_id)
-        REFERENCES roles(id)
+    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles(id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE
 );
+
+-- ------------------------------
+-- 4. Clientes
+-- ------------------------------
 CREATE TABLE Clientes (
-    id_cliente INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario BIGINT NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE,
     telefono VARCHAR(20),
-    direccion VARCHAR(200)
+    direccion VARCHAR(200),
+    estado VARCHAR(20) DEFAULT 'ACTIVO',
+    CONSTRAINT fk_cliente_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+        ON DELETE CASCADE
 );
 
--- Tabla Contactos
+-- ------------------------------
+-- 5. Contactos
+-- ------------------------------
 CREATE TABLE Contactos (
-    id_contacto INT AUTO_INCREMENT PRIMARY KEY,
-    id_cliente INT NOT NULL,
+    id_contacto BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente BIGINT NOT NULL,
+    id_usuario BIGINT NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100),
     telefono VARCHAR(20),
     cargo VARCHAR(50),
-    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente) ON DELETE CASCADE
-);
-
--- Tabla Incidencias
-CREATE TABLE Incidencias (
-    id_incidencia INT AUTO_INCREMENT PRIMARY KEY,
-    id_cliente INT NOT NULL,
-    id_contacto INT,
-    descripcion TEXT,
-    fecha_apertura DATETIME DEFAULT CURRENT_TIMESTAMP,
-    estado VARCHAR(50),
-    prioridad VARCHAR(20),
+    estado VARCHAR(20) DEFAULT 'ACTIVO',
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente) ON DELETE CASCADE,
-    FOREIGN KEY (id_contacto) REFERENCES Contactos(id_contacto) ON DELETE SET NULL
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
+-- ------------------------------
+-- 6. Incidencias
+-- ------------------------------
 
-
-
--- Tabla intermedia Usuario_Rol
+-- ------------------------------
+-- 7. Usuario_Rol
+-- ------------------------------
 CREATE TABLE Usuario_Rol (
     id_usuario BIGINT NOT NULL,
     id_rol BIGINT NOT NULL,
@@ -65,27 +72,91 @@ CREATE TABLE Usuario_Rol (
     FOREIGN KEY (id_rol) REFERENCES roles(id) ON DELETE CASCADE
 );
 
--- Tabla Tareas
+-- ------------------------------
+-- 8. Tareas
+-- ------------------------------
 CREATE TABLE Tareas (
-    id_tarea INT AUTO_INCREMENT PRIMARY KEY,
+    id_tarea BIGINT AUTO_INCREMENT PRIMARY KEY,
     id_usuario BIGINT NOT NULL,
-    id_cliente INT,
-    id_incidencia INT,
+    id_cliente BIGINT,
     titulo VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    estado VARCHAR(50) DEFAULT 'Pendiente',
+    estado VARCHAR(50) DEFAULT 'PENDIENTE',
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_vencimiento DATETIME,
     prioridad VARCHAR(20),
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente) ON DELETE SET NULL,
-    FOREIGN KEY (id_incidencia) REFERENCES Incidencias(id_incidencia) ON DELETE SET NULL
-); 
+    FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente) ON DELETE SET NULL
+);
 
+-- ------------------------------
+-- 9. Oportunidades
+-- ------------------------------
+CREATE TABLE OPORTUNIDAD (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    id_cliente BIGINT NOT NULL,
+    id_usuario BIGINT NOT NULL,
+    stage ENUM('PROSPECCION','CALIFICACION','PROPUESTA','NEGOCIACION','CERRADA_GANADA','CERRADA_PERDIDA') NOT NULL,
+    nivel ENUM('BAJO','MEDIO','ALTO') NOT NULL,
+    amount DECIMAL(19,4) NOT NULL,
+    start_date DATE NOT NULL,
+    close_date DATE NOT NULL,
+    CONSTRAINT fk_oportunidad_cliente FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),
+    CONSTRAINT fk_oportunidad_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+);
+
+-- ------------------------------
+-- INSERTS EJEMPLO
+-- ------------------------------
+
+-- Roles
 INSERT INTO roles (name) VALUES ('ADMIN');
 
-
-
+-- Usuario
 INSERT INTO usuarios (username, email, password, role_id)
---contraseña: 1234
 VALUES ('hugo', 'hugo@gmail.com', '$2a$10$TT0MXs6nA0gWpt2bsg0eBewA4hbDqpO99c/rg99wRm2j5UqiQoW92', 1);
+
+-- Clientes
+INSERT INTO Clientes (id_usuario, nombre, email, telefono, direccion, estado) VALUES
+(1, 'Tech Solutions Corp.', 'contacto@techsolutions.com', '600112233', 'C/ Innovación, 10, Madrid', 'ACTIVO'),
+(1, 'Global Logistics SRL', 'info@globallogistics.com', '699887766', 'Av. Central, 45, Barcelona', 'PENDIENTE'),
+(1, 'Marketing Digital Pro', 'contacto@marketingpro.com', '655443322', 'Pza. Mayor, 2, Sevilla', 'INACTIVO');
+
+-- Contactos
+INSERT INTO Contactos (id_cliente, id_usuario, nombre, email, telefono, cargo, estado) VALUES
+(1, 1, 'Elena García', 'elena.garcia@techsolutions.com', '600112233', 'Jefa de IT', 'ACTIVO'),
+(2, 1, 'Pedro Soto', 'pedro.soto@globallogistics.com', '699887766', 'Gerente de Operaciones', 'PENDIENTE'),
+(3, 1, 'Laura Méndez', 'laura.mendez@marketingpro.com', '655443322', 'Directora de Cuentas', 'INACTIVO');
+
+-- Oportunidades
+INSERT INTO OPORTUNIDAD (id, name, id_cliente, id_usuario, stage, nivel, amount, start_date, close_date) VALUES
+('OPP-001', 'Nuevo contrato Tech Solutions', 1, 1, 'PROSPECCION', 'ALTO', 50000, '2025-12-01', '2026-01-15'),
+('OPP-002', 'Actualización logística Global', 2, 1, 'NEGOCIACION', 'MEDIO', 30000, '2025-12-02', '2026-01-20'),
+('OPP-003', 'Campaña Marketing Digital', 3, 1, 'CERRADA_GANADA', 'BAJO', 15000, '2025-11-25', '2025-12-10'),
+('OPP-004', 'Integración de módulo', 2, 1, 'CERRADA_PERDIDA', 'MEDIO', 10000, '2025-11-30', '2025-12-05'),
+('OPP-005', 'Propuesta SEO Tech Solutions', 1, 1, 'CALIFICACION', 'ALTO', 20000, '2025-12-03', '2026-01-25');
+
+INSERT INTO Tareas (id_usuario, id_cliente, titulo, descripcion, estado, fecha_vencimiento, prioridad) VALUES
+(1, 1, 'Revisar informe Q3 para Cliente A', 'Analizar las métricas de rendimiento del tercer trimestre y preparar un resumen ejecutivo.', 'PENDIENTE', '2025-12-15 17:00:00', 'ALTA'),
+(1, 2, 'Resolver problema de conexión de red', 'Se ha reportado una caída intermitente en la conexión del servidor principal del Cliente B.', 'EN PROGRESO', '2025-12-10 12:00:00', 'BAJA'),
+(1, NULL, 'Actualizar documentación interna de API', 'Documentar los nuevos endpoints de la API v2.0 en el wiki de desarrollo.', 'PENDIENTE', '2026-01-31 09:00:00', 'MEDIA'),
+(1, 3, 'Llamar a Cliente A para seguimiento', 'Contactar al contacto principal del Cliente A para revisar el progreso del proyecto X.', 'COMPLETADA', '2025-12-05 10:30:00', 'ALTA'),
+(1, 1, 'Configurar nuevo entorno de pruebas', 'Provisionar un nuevo servidor virtual para el equipo de QA.', 'PENDIENTE', '2025-12-20 18:00:00', 'MEDIA'),
+(1, NULL, 'Preparar presentación para junta directiva', 'Crear diapositivas sobre los resultados del último mes y proyecciones futuras.', 'EN PROGRESO', '2025-12-12 14:00:00', 'ALTA'),
+(1, 1, 'Reunión de planificación semanal', 'Agenda: Revisión de tareas pendientes, asignación de nuevos objetivos.', 'COMPLETADA', '2025-12-02 09:00:00', 'MEDIA');
+
+INSERT INTO OPORTUNIDAD (id, name, id_cliente, id_usuario, stage, nivel, amount, start_date, close_date)
+VALUES
+('OP202501', 'Enero 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 5000.00, '2025-01-01', '2025-01-15'),
+('OP202502', 'Febrero 2025', 1, 1, 'CERRADA_GANADA', 'MEDIO', 4800.00, '2025-02-01', '2025-02-15'),
+('OP202503', 'Marzo 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 5200.00, '2025-03-01', '2025-03-15'),
+('OP202504', 'Abril 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 6000.00, '2025-04-01', '2025-04-15'),
+('OP202505', 'Mayo 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 5500.00, '2025-05-01', '2025-05-15'),
+('OP202506', 'Junio 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 7000.00, '2025-06-01', '2025-06-15'),
+('OP202507', 'Julio 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 6500.00, '2025-07-01', '2025-07-15'),
+('OP202508', 'Agosto 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 7200.00, '2025-08-01', '2025-08-15'),
+('OP202509', 'Septiembre 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 6800.00, '2025-09-01', '2025-09-15'),
+('OP202510', 'Octubre 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 7100.00, '2025-10-01', '2025-10-15'),
+('OP202511', 'Noviembre 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 6900.00, '2025-11-01', '2025-11-15'),
+('OP202512', 'Diciembre 2025', 1, 1, 'CERRADA_GANADA', 'ALTO', 7500.00, '2025-12-01', '2025-12-15');
