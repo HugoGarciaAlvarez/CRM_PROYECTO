@@ -19,4 +19,6 @@ Para levantar el servidor spring si se utiliza visual studio tener instalado las
 
 Para levantar la base de datos, pegue el codigo adjunto del archivo base-de-datos.txt
 
+El usuario y contraseña para poder inciar sesion
+
 
