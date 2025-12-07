@@ -1,0 +1,66 @@
+<div class="p-2 sm:p-6 lg:p-8 bg-gray-100 min-h-screen flex flex-col gap-2 sm:gap-6 lg:gap-8">
+
+  <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-4" *ngIf="!cargando()">
+    Bienvenido {{ username() }} </h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-6" *ngIf="!cargando()">
+    <div class="bg-blue-100 text-blue-700 p-2 sm:p-5 lg:p-6 rounded-lg sm:rounded-xl shadow text-center">
+      <h2 class="font-semibold mb-2">Tareas Faltantes (Pendientes)</h2>
+      <p class="text-3xl font-bold">{{ tareasFaltantes() }}</p>
+    </div>
+    <div class="bg-orange-100 text-orange-700 p-2 sm:p-5 lg:p-6 rounded-lg sm:rounded-xl shadow text-center">
+      <h2 class="font-semibold mb-2">Incidencias en Trámite</h2>
+      <p class="text-3xl font-bold">{{ incidenciasTramite() }}</p>
+    </div>
+    <div class="bg-red-100 text-red-700 p-2 sm:p-5 lg:p-6 rounded-lg sm:rounded-xl shadow text-center">
+      <h2 class="font-semibold mb-2">Incidencias Activas</h2>
+      <p class="text-3xl font-bold">{{ incidenciasActivas() }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-6 lg:gap-8 mt-2 sm:mt-4 lg:mt-6" *ngIf="!cargando()">
+
+    <div class="bg-white p-2 sm:p-5 lg:p-6 rounded-lg sm:rounded-xl shadow flex flex-col items-center">
+      <h2 class="font-semibold mb-2">Ventas Mensuales</h2>
+      <div class="w-full flex justify-center overflow-x-auto">
+        <div class="w-full" style="min-width: 220px; max-width: 100%;">
+          <canvas #ventasCanvas style="width:100%;max-width:500px;height:auto;aspect-ratio:2/1;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white p-2 sm:p-5 lg:p-6 rounded-lg sm:rounded-xl shadow flex flex-col items-center">
+      <h2 class="font-semibold mb-2">Prioridad de Tareas (Leads)</h2> 
+      <div class="w-full flex justify-center overflow-x-auto">
+        <div class="w-full" style="min-width: 220px; max-width: 100%;">
+          <canvas #leadsCanvas style="width:100%;max-width:500px;height:auto;aspect-ratio:2/1;"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bg-white p-2 sm:p-5 lg:p-6 rounded-lg sm:rounded-xl shadow mt-2 sm:mt-6" *ngIf="!cargando()">
+    <h2 class="font-semibold mb-4">Clientes Recientes</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left border-collapse text-xs sm:text-sm">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="px-2 sm:px-4 py-2">Nombre</th>
+          <th class="px-2 sm:px-4 py-2">Estado</th>
+          <th class="px-2 sm:px-4 py-2 hidden sm:table-cell">Contacto por Email</th> 
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cliente of clientesRecientes()">
+          <td class="border-t px-2 sm:px-4 py-2">{{ cliente.nombre }}</td>
+          <td class="border-t px-2 sm:px-4 py-2">{{ cliente.estado }}</td>
+          <td class="border-t px-2 sm:px-4 py-2 hidden sm:table-cell">{{ cliente.ultimoContacto }}</td> 
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="text-gray-500 text-sm sm:text-base" *ngIf="cargando()">Cargando dashboard...</p>
+
+</div>
